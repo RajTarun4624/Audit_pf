@@ -27,7 +27,8 @@ pa_audit_tool/
 │     ├─ common.js          storage, API calls, header, export helpers
 │     └─ checklist.js, dashboard.js, summary.js, records.js   one script per page
 ├─ api/index.py             Vercel serverless entry point (imports backend/app)
-├─ vercel.json              Vercel routing: /api/* → FastAPI, everything else → frontend/
+├─ vercel.json              Vercel: serve frontend/ as static; FastAPI handles everything else
+├─ .python-version          pins Python 3.12 (required by Vercel's Python runtime)
 ├─ requirements.txt         copy of backend/requirements.txt (Vercel reads it from the root)
 ├─ start_backend.bat        double-click to run everything locally on Windows
 └─ legacy/                  the previous React / Google-Sheets / Vercel-Blob versions (unused)
@@ -90,22 +91,29 @@ database that is reachable from the internet. The cheapest working combination:
 
 ### Recommended: Vercel (frontend + backend) + Neon (free PostgreSQL)
 
-Vercel runs the FastAPI app as a Python serverless function and serves `frontend/` as static
-files, from this one folder. Neon gives a permanent free PostgreSQL database (0.5 GB, plenty for
-hundreds of thousands of audits).
+Vercel detects the FastAPI app in `api/index.py`, runs it as a Python 3.12 serverless function,
+and serves `frontend/` as static files. No rewrite rules are needed (Vercel now passes the
+rewritten path to the app, so a rewrite would break the API routes). Neon gives a permanent free
+PostgreSQL database (0.5 GB, plenty for hundreds of thousands of audits).
 
-1. **Database** — sign up at https://neon.tech (free), create a project, and copy the connection
-   string. It looks like
-   `postgresql://user:password@ep-xxxx.region.aws.neon.tech/neondb?sslmode=require`.
-   *(Alternative: in the Vercel project, Storage → Create Database → Neon. That creates the
-   database and sets `DATABASE_URL` for you; skip step 3's variable.)*
-2. **Code** — push this folder to a GitHub repository (do not commit `backend/.env`; it is
-   git-ignored). Or use the CLI without GitHub: `npx vercel` inside this folder.
-3. **Deploy** — at https://vercel.com → Add New → Project → import the repo.
-   Under *Environment Variables* add `DATABASE_URL` = the Neon string. Leave framework as
-   "Other". Click Deploy.
-4. Open the Vercel URL. The header shows **Database connected**, and every auditor who uses that
-   URL writes to the same Neon database. You see everything in the Records tab, or download it.
+1. **Deploy from GitHub** — at https://vercel.com/new import the `Audit_pf` repository. Leave
+   framework as "Other" and the root directory as is. Click Deploy. You get a URL such as
+   `https://audit-pf.vercel.app`; the pages load, and the header says *Backend unreachable*
+   until the database is attached.
+2. **Database** — in the Vercel project open **Storage → Create Database → Neon** (free plan).
+   This creates the database and adds `DATABASE_URL` to the project automatically.
+   *(Or create one at https://neon.tech yourself and add `DATABASE_URL` under Settings →
+   Environment Variables.)*
+3. **Redeploy** — Deployments → three-dot menu on the latest → Redeploy, so the function picks up
+   the variable. The header now shows **Database connected**; tables are created on first request.
+4. Share the URL. Every auditor writes to the same Neon database, and you see all of it on the
+   Records page or via the CSV exports.
+
+Every later `git push` to `main` redeploys automatically.
+
+Deploying with the CLI instead (`npx vercel`) also works, but the CLI packages the Python function
+locally and needs the `uv` tool on PATH plus a Python 3.12 it can find (`uv python install 3.12`).
+Run it from a clean checkout so `backend/.env` is not present.
 
 Free-tier notes: Vercel Hobby functions have a 10-second limit (each API call here takes well
 under a second) and cold starts of about one second. Neon pauses idle databases and resumes them
