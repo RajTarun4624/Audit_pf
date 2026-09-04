@@ -1,5 +1,4 @@
-legacy
+.vercel
 backend/.venv
-backend/.env
 **/__pycache__
 *.pyc
