@@ -26,11 +26,11 @@ function summaryBody(d, c) {
       (fails ? '<span class="chip red">' + fails + ' fail</span>' : "") + (pending ? '<span class="chip muted">' + pending + ' left</span>' : "") +
       (!fails && !pending ? '<span class="chip green">✓</span>' : "") + '</div></div>';
   }).join("");
-  const log = c.criticalFails.concat(c.majorFails, c.minorFails);
-  return '<div class="card sum-hd"><div><div class="batch">' + esc(m.batchId || "—") + '</div><div class="kvs">' + kvs + '</div><div class="dim" style="font-size:11px;margin-top:6px">PA Data Collection Audit</div></div>' + gauge + '</div>' +
+  const log = c.criticalFails.concat(c.majorFails);
+  return '<div class="card sum-hd"><div><div class="batch">' + esc(m.batchId || "—") + '</div><div class="kvs">' + kvs + '</div><div class="dim" style="font-size:11px;margin-top:6px">PA Data Collection Audit · GR16</div></div>' + gauge + '</div>' +
     verdictBox(c) +
     '<div class="card"><div class="card-hd">SECTION BREAKDOWN</div>' + sections + '</div>' +
-    (log.length ? '<div class="card"><div class="card-hd">FAILED ITEMS LOG</div>' + log.map(x => issueHTML(x, d.notes[x.id], false)).join("") + '</div>' : "");
+    (log.length ? '<div class="card"><div class="card-hd">FAILED ITEMS LOG</div>' + log.map(x => issueHTML(x, d.notes[x.id], true)).join("") + '</div>' : "");
 }
 
 function render() {

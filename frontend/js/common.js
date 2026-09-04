@@ -87,7 +87,7 @@ function computed(vals) {
 
 function buildRecord(draft, now) {
   const checks = ALL.map(c => ({
-    check_id: c.id.toUpperCase(), section: c.section, severity: c.severity,
+    check_id: c.id, section: c.section, severity: c.severity,
     result: draft.vals[c.id] || "pending", note: draft.notes[c.id] || "",
   }));
   const failed = checks.filter(c => c.result === "fail");
@@ -149,8 +149,8 @@ function headerHTML(page) {
   const db = hdrState.health === true ? '<span><span class="dot ok"></span>Database connected</span>'
            : hdrState.health === false ? '<span class="red" title="' + esc(hdrState.error || "") + '"><span class="dot bad"></span>Backend unreachable</span>'
            : '<span><span class="dot"></span>Connecting…</span>';
-  return '<div><div class="hdr-title">PA Data Collection · Task Audit</div>' +
-    '<div class="hdr-sub"><span>Quality Executive — GR16 · ' + ALL_IDS.length + ' checkpoints across ' + SECTIONS.length + ' sections</span>' + db + '</div></div>' +
+  return '<div><div class="hdr-title">GR16 · PA Data Collection · Task Audit</div>' +
+    '<div class="hdr-sub"><span>Quality Executive Review Form · ' + ALL_IDS.length + ' checkpoints across ' + SECTIONS.length + ' sections</span>' + db + '</div></div>' +
     '<div class="tabs">' + PAGES.map(([href, id, label]) =>
       '<a class="tab' + (page === id ? " active" : "") + '" href="' + href + '">' + label + (id === "records" && n ? " (" + n + ")" : "") + '</a>').join("") + '</div>';
 }
@@ -182,13 +182,13 @@ function metaStrip(meta) {
 }
 function issueHTML(c, note, withId) {
   return '<div class="issue">' + sevChip(c.severity) + '<div style="flex:1">' +
-    (withId ? '<div class="id">' + c.id.toUpperCase() + '</div>' : "") +
+    (withId ? '<div class="id">' + esc(c.id) + '</div>' : "") +
     '<div class="t">' + esc(c.text) + '</div>' +
     (note ? '<div class="n">Note: ' + esc(note) + '</div>' : "") + '</div></div>';
 }
 function verdictBox(c) {
   if (!c.ready) return '<div class="verdict pending">Complete all checkpoints to generate the audit verdict.</div>';
-  const ids = list => list.map(x => x.id.toUpperCase()).join(", ");
+  const ids = list => list.map(x => x.id).join(", ");
   if (c.criticalFails.length) return '<div class="verdict hold"><h4>⛔ HOLD — Critical Failures</h4>Batch cannot be submitted. ' + plural(c.criticalFails.length, "critical checkpoint") + ' failed: ' + ids(c.criticalFails) + '.</div>';
   if (c.majorFails.length) return '<div class="verdict cond"><h4>⚠ CONDITIONAL PASS — Major Issues</h4>' + plural(c.majorFails.length, "major issue") + ' noted. Batch may proceed with documented remediation plan: ' + ids(c.majorFails) + '.</div>';
   return '<div class="verdict ok"><h4>✓ CLEAR — Approved for Submission</h4>All critical and major checkpoints passed. Batch is approved for client delivery.</div>';

@@ -56,7 +56,6 @@ function currentHTML() {
   const { stats, criticalFails, majorFails, minorFails } = c;
   const reviewed = stats.passed + stats.failed + stats.na;
   const passPct = reviewed ? Math.round(stats.passed / reviewed * 100) : 0;
-  const failPct = reviewed ? Math.round(stats.failed / reviewed * 100) : 0;
   const totalFails = criticalFails.length + majorFails.length + minorFails.length;
   const chip = !c.ready ? ["In Progress", "accent"] : criticalFails.length ? ["HOLD", "red"] : majorFails.length ? ["Conditional", "amber"] : ["Approved", "green"];
   const kpi = (icon, label, value, sub, cls) => '<div class="kpi"><div class="l"><span>' + icon + '</span>' + label + '</div><div class="v ' + (cls || "") + '">' + value + '</div><div class="s">' + sub + '</div></div>';
@@ -94,7 +93,7 @@ function currentHTML() {
     '<div class="kpis">' +
       kpi("📋", "Total Checkpoints", stats.total, reviewed + " reviewed") +
       kpi("✓", "Passed", stats.passed, passPct + "% of reviewed", "green") +
-      kpi("✗", "Failed", stats.failed, failPct + "% of reviewed", stats.failed > 0 ? "red" : "") +
+      kpi("✗", "Failed", stats.failed, "need resolution", stats.failed > 0 ? "red" : "") +
       kpi("—", "N/A", stats.na, "not applicable", "muted") +
       kpi("⏳", "Pending", stats.pending, "need review", stats.pending > 0 ? "amber" : "") +
       '<div class="kpi" style="align-items:flex-start"><div class="l">🏁 Verdict</div><span class="chip ' + chip[1] + '" style="font-size:15px;font-weight:800;padding:4px 10px;margin-top:4px">' + chip[0] + '</span></div>' +

@@ -1,4 +1,4 @@
-// Checklist page: metadata form, the seven sections, submit bar.
+// Checklist page: metadata form, the checkpoint sections, submit bar.
 // The draft is saved to the browser on every change and cleared after a successful submission.
 (function () {
 "use strict";
@@ -20,7 +20,7 @@ function metaFormHTML() {
   const f = (k, label, ph, cls, type) =>
     '<div class="field ' + (cls || "") + '"><label>' + label + '</label><input type="' + (type || "text") + '" data-meta="' + k + '" value="' + esc(m[k]) + '" placeholder="' + esc(ph || "") + '"></div>';
   return '<div class="card meta">' +
-    '<div class="meta-row">' + f("taskId", "Task ID", "e.g. PA-2026-0801") + f("queueName", "Queue Name", "e.g. GR16-PA-Pilot") + f("batchId", "Batch ID / File Name", "e.g. single_turn_batch01_20260801", "wide") + '</div>' +
+    '<div class="meta-row">' + f("taskId", "Task ID", "e.g. PA-2026-0801") + f("queueName", "Queue Name", "e.g. GR16-PA-Pilot") + f("batchId", "Batch ID / File Name", "e.g. single_turn_task001", "wide") + '</div>' +
     '<div class="meta-row">' + f("auditor", "Quality Executive Name", "QE full name") + f("annotatorName", "Annotator Name", "Annotator full name") +
       f("annotationDate", "Annotation Date", "", "date", "date") + f("auditDate", "Audit Date", "", "date", "date") + '</div></div>';
 }
@@ -31,7 +31,7 @@ function checkRowHTML(c) {
     '<div class="chk-hd" data-act="toggle-check" data-id="' + c.id + '">' +
       '<span class="chk-caret">' + (open ? "▾" : "▸") + '</span>' +
       '<div class="chk-sev">' + sevChip(c.severity) + '</div>' +
-      '<div class="chk-text">' + esc(c.text) + '</div>' +
+      '<div class="chk-text"><span class="accent" style="font-weight:700;margin-right:6px">' + esc(c.id) + '</span>' + esc(c.text) + '</div>' +
       '<div class="chk-status">' + statusChip(v) + '</div></div>';
   if (open) {
     html += '<div class="chk-body"><div class="guide"><b>Guidance:</b>' + esc(c.guidance) + '</div>' +
@@ -65,7 +65,7 @@ function submitBarHTML(c) {
   const pending = stats.pending, done = stats.total - pending;
   const r = 14, circ = 2 * Math.PI * r, pct = stats.total ? done / stats.total : 0, dash = pct * circ;
   const statusText = pending > 0 ? plural(pending, "checkpoint") + " remaining"
-    : criticalFails.length > 0 ? plural(criticalFails.length, "critical failure") + " — submission will be recorded as HOLD"
+    : criticalFails.length > 0 ? plural(criticalFails.length, "critical failure") + " — resolve before submitting"
     : majorFails.length > 0 ? plural(majorFails.length, "major issue") + " — submission allowed with remediation note"
     : "All checkpoints complete — ready to submit";
   const statusCls = pending > 0 ? "dim" : criticalFails.length > 0 ? "red" : majorFails.length > 0 ? "amber" : "green";
